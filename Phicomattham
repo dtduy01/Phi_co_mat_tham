@@ -3,6 +3,7 @@
 #include<vector>
 #include<math.h>
 using namespace std;
+// alo alo test thu va da thanh cong vcl
 
 class Shoot {
 public:
