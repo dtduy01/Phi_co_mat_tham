@@ -1,0 +1,153 @@
+#include <SFML/Graphics.hpp>
+#include<iostream>
+#include<vector>
+#include<math.h>
+using namespace std;
+
+class Shoot {
+public:
+	Shoot(sf::Vector2f size) {
+		shoot.setSize(size);
+		shoot.setFillColor(sf::Color::Red);
+	}
+	void fire(float speed) {
+		shoot.move(speed, 0);
+	}
+	int getRight() {
+		return shoot.getPosition().x + shoot.getSize().x;
+	}
+	int getLeft() {
+		return shoot.getPosition().x;
+	}
+	int getTop() {
+		return shoot.getPosition().y;
+	}
+	int getBottom() {
+		return shoot.getPosition().y + shoot.getSize().y;
+	}
+	void draw(sf::RenderWindow& window) {
+		window.draw(shoot);
+	}
+	void setPos(sf::Vector2f newPos) {
+		shoot.setPosition(newPos);
+	}
+	void rotate(float angle) {
+		shoot.setRotation(angle);
+	}
+private:
+	sf::RectangleShape shoot;
+};
+sf::Vector2f normalize(sf::Vector2f a) {
+	sf::Vector2f nomar;
+	float lenght = sqrt(a.x * a.x + a.y * a.y);
+	nomar.x = a.x / lenght;
+	nomar.y = a.y / lenght;
+	return nomar;
+}
+
+int main()
+{
+	sf::RenderWindow window(sf::VideoMode(900, 500), "PHICOMATTHAMTOP1OHYEAH", sf::Style::Close);
+	window.setFramerateLimit(60);
+
+	bool isFiring = false;
+	vector<sf::Sprite>shootVect;
+	vector<sf::Vector2f>vectBullet;
+	sf::Texture phi_co_mat_tham, dan_chiu_chiu;
+	phi_co_mat_tham.loadFromFile("maybay.png");
+	phi_co_mat_tham.setSmooth(true);
+	dan_chiu_chiu.loadFromFile("dan.png");
+	dan_chiu_chiu.setSmooth(true);
+	sf::Vector2u size = phi_co_mat_tham.getSize(),
+		size1 = dan_chiu_chiu.getSize();
+
+	sf::Sprite moved(phi_co_mat_tham);
+	//	moved.setOrigin(size.x / 2, size.y / 2);
+
+	moved.setPosition(200, 200);
+	
+	//	movedan.setOrigin(0, size1.y / 2);
+	moved.rotate(90.0f);
+	while (window.isOpen()) {
+		sf::Event event;
+		sf::Clock clock;
+		float speed = 3;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+			moved.move(-speed, 0);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+			moved.move(speed, 0);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+			moved.move(0, -speed);
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+			moved.move(0, speed);
+		}
+		while (window.pollEvent(event)) {
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			}
+			sf::Time time1 = clock.getElapsedTime();
+			
+			float sec = time1.asSeconds();
+			bool is_key_pressed = false;
+			switch (event.type) {
+			case sf::Event::KeyPressed: {
+
+				
+			} break;
+				
+			case sf::Event::MouseButtonPressed:
+			{
+				if (event.key.code == sf::Mouse::Left)
+				{
+
+					isFiring = true;
+				}
+
+			}break;
+			default:
+				break;
+			}
+		}
+		sf::Vector2f center = moved.getPosition();
+		sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
+
+		sf::Vector2u circleSize = moved.getTexture()->getSize();
+		moved.setOrigin(circleSize.x / 2, circleSize.y / 2);
+		sf::Vector2f d = sf::Vector2f(mousePosition.x, mousePosition.y) - center;
+		const float Pi = 3.14159f;
+		moved.setRotation(atan2f(d.y, d.x) * 180 / Pi);
+
+
+		window.clear(sf::Color::Yellow);
+		if (isFiring == true) {
+			//	if (time1.asSeconds() > 0.05) {
+			sf::Sprite movedan(dan_chiu_chiu);
+			movedan.setPosition(moved.getPosition().x, moved.getPosition().y);
+			movedan.setOrigin(size1.x / 2, size1.y / 2);
+			sf::Vector2f direction = sf::Vector2f(mousePosition.x, mousePosition.y) - center;
+			//	sf::Vector2f  normDirection = normalize(direction);
+			vectBullet.push_back(normalize(direction));
+			shootVect.push_back(movedan);
+			isFiring = false;
+			//		clock.restart();
+
+			//	}
+		}
+
+		for (int i = 0; i < shootVect.size(); i++) {
+
+			shootVect[i].move(vectBullet[i].x*5, vectBullet[i].y*5);
+			window.draw(shootVect[i]);
+			//	shootVect[i].move(3.0f, 0.0f);
+
+		}
+
+		window.draw(moved);
+		//	window.draw(movedan);
+		window.display();
+
+	}
+}
